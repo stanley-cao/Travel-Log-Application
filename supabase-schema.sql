@@ -91,3 +91,9 @@ create policy "Users can read own photos"
 create policy "Users can delete own photos"
   on storage.objects for delete
   using (bucket_id = 'trip-photos' and auth.uid()::text = (storage.foldername(name))[1]);
+
+
+-- ── Add stops column for multi-city support ───────────────────
+-- Run this if you already ran the original schema above
+alter table public.trips
+  add column if not exists stops jsonb not null default '[]'::jsonb;

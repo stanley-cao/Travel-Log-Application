@@ -12,7 +12,7 @@ type SortKey = 'date_desc' | 'date_asc' | 'rating' | 'alpha'
 
 export default function TripsPage({ userId }: Props) {
   const navigate = useNavigate()
-  const { trips, loading, addTrip } = useTrips(userId)
+  const { trips, loading, addTrip, updateTrip } = useTrips(userId)
   const [showForm, setShowForm] = useState(false)
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<SortKey>('date_desc')
@@ -41,9 +41,15 @@ export default function TripsPage({ userId }: Props) {
     return result
   }, [trips, search, sortBy, filterCountry])
 
-  const handleAdd = async (data: TripFormData) => {
-    await addTrip(data, userId)
-    setShowForm(false)
+  // Returns null on success, error string on failure
+  const handleAdd = async (data: TripFormData): Promise<string | null> => {
+    const err = await addTrip(data, userId)
+    if (!err) setShowForm(false)
+    return err
+  }
+
+  const handleUpdate = async (data: TripFormData): Promise<string | null> => {
+    return await updateTrip('', data) // id handled in detail page
   }
 
   return (

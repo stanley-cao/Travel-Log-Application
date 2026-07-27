@@ -48,7 +48,10 @@ export default function TripCard({ trip, onClick }: Props) {
         <div className="trip-card-title">{trip.title}</div>
         <div className="trip-card-location">
           <MapPin size={12} />
-          {trip.city}, {trip.country}
+          {trip.stops?.length > 1
+            ? `${trip.stops[0].city} + ${trip.stops.length - 1} more`
+            : `${trip.city}, ${trip.country}`
+          }
         </div>
         <div className="trip-card-meta">
           <div className="date-badge">

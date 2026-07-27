@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Globe } from 'lucide-react'
+import { Globe, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 
 export default function AuthPage() {
@@ -7,6 +7,7 @@ export default function AuthPage() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -22,7 +23,7 @@ export default function AuthPage() {
     } else {
       const err = await signUp(email, password)
       if (err) setError(err.message)
-      else setSuccess('Check your email to confirm your account!')
+      else setSuccess('Account created! You can now sign in.')
     }
     setLoading(false)
   }
@@ -56,17 +57,36 @@ export default function AuthPage() {
               required
             />
           </div>
+
           <div className="form-group">
             <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-input"
-              placeholder="••••••••"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className="form-input"
+                placeholder="••••••••"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                minLength={6}
+                style={{ paddingRight: 40 }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                style={{
+                  position: 'absolute', right: 10, top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--sand-500)', display: 'flex', alignItems: 'center',
+                  padding: 2,
+                }}
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           {error && (

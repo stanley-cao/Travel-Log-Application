@@ -7,14 +7,24 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Timeout fallback — if Supabase doesn't respond in 5s, stop loading anyway
+    const timeout = setTimeout(() => setLoading(false), 5000)
+
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      clearTimeout(timeout)
+      if (error) console.error('Supabase getSession error:', error.message)
       setUser(session?.user ?? null)
       setLoading(false)
+    }).catch(err => {
+      clearTimeout(timeout)
+      console.error('Supabase connection failed:', err)
+      setLoading(false)
     })
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
-    return () => subscription.unsubscribe()
+    return () => { subscription.unsubscribe(); clearTimeout(timeout) }
   }, [])
 
   const signIn = async (email: string, password: string) => {

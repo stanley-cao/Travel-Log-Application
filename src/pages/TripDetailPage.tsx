@@ -36,9 +36,10 @@ export default function TripDetailPage({ userId }: Props) {
 
   const nights = Math.max(1, differenceInDays(parseISO(trip.end_date), parseISO(trip.start_date)) + 1)
 
-  const handleUpdate = async (data: TripFormData) => {
-    await updateTrip(trip.id, data)
-    setShowEdit(false)
+  const handleUpdate = async (data: TripFormData): Promise<string | null> => {
+    const err = await updateTrip(trip.id, data)
+    if (!err) setShowEdit(false)
+    return err
   }
 
   const handleDelete = async () => {
@@ -51,7 +52,8 @@ export default function TripDetailPage({ userId }: Props) {
     const files = Array.from(e.target.files || [])
     for (const file of files) {
       const url = await uploadPhoto(file)
-      if (url && photos.length === 0) {
+      // Set cover if this is the first photo or no cover is set
+      if (url && (!trip.cover_image_url || photos.length === 0)) {
         await updateCoverImage(trip.id, url)
       }
     }
@@ -60,6 +62,20 @@ export default function TripDetailPage({ userId }: Props) {
 
   const handleSetCover = async (url: string) => {
     await updateCoverImage(trip.id, url)
+  }
+
+  const handleDeletePhoto = async (photo: import('../types').TripPhoto) => {
+    const wasCover = trip.cover_image_url === photo.url
+    await deletePhoto(photo)
+    if (wasCover) {
+      // Find another photo to use as cover, or clear it
+      const remaining = photos.filter(p => p.id !== photo.id)
+      if (remaining.length > 0) {
+        await updateCoverImage(trip.id, remaining[0].url)
+      } else {
+        await updateCoverImage(trip.id, '')
+      }
+    }
   }
 
   return (
@@ -73,7 +89,9 @@ export default function TripDetailPage({ userId }: Props) {
             <h2 style={{ fontSize: 18 }}>{trip.title}</h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--sand-500)', marginTop: 2 }}>
               <MapPin size={12} />
-              {trip.city}, {trip.country}
+              {trip.stops?.length > 1
+                ? trip.stops.map(s => s.city).join(' → ')
+                : `${trip.city}, ${trip.country}`}
             </div>
           </div>
         </div>
@@ -194,7 +212,7 @@ export default function TripDetailPage({ userId }: Props) {
                       </div>
                       <button
                         className="photo-delete"
-                        onClick={e => { e.stopPropagation(); deletePhoto(photo) }}
+                        onClick={e => { e.stopPropagation(); handleDeletePhoto(photo) }}
                       >
                         <X size={12} />
                       </button>
