@@ -97,3 +97,39 @@ create policy "Users can delete own photos"
 -- Run this if you already ran the original schema above
 alter table public.trips
   add column if not exists stops jsonb not null default '[]'::jsonb;
+
+
+-- ── Planned Trips table ───────────────────────────────────────
+create table if not exists public.planned_trips (
+  id            uuid primary key default uuid_generate_v4(),
+  user_id       uuid not null references auth.users(id) on delete cascade,
+  title         text not null,
+  destination   text not null default '',
+  country       text not null default '',
+  start_date    date,
+  end_date      date,
+  status        text not null default 'planning' check (status in ('planning', 'completed')),
+  cover_emoji   text not null default '✈️',
+  notes         text not null default '',
+  itinerary     jsonb not null default '[]'::jsonb,
+  places        jsonb not null default '[]'::jsonb,
+  budget        jsonb not null default '[]'::jsonb,
+  packing       jsonb not null default '[]'::jsonb,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+
+create trigger planned_trips_updated_at
+  before update on public.planned_trips
+  for each row execute procedure public.handle_updated_at();
+
+alter table public.planned_trips enable row level security;
+
+create policy "Users can view own planned trips"
+  on public.planned_trips for select using (auth.uid() = user_id);
+create policy "Users can insert own planned trips"
+  on public.planned_trips for insert with check (auth.uid() = user_id);
+create policy "Users can update own planned trips"
+  on public.planned_trips for update using (auth.uid() = user_id);
+create policy "Users can delete own planned trips"
+  on public.planned_trips for delete using (auth.uid() = user_id);

@@ -6,6 +6,7 @@ import TripsPage from './pages/TripsPage'
 import MapPage from './pages/MapPage'
 import StatsPage from './pages/StatsPage'
 import TripDetailPage from './pages/TripDetailPage'
+import PlannerPage from './pages/PlannerPage'
 
 function App() {
   const { user, loading } = useAuth()
@@ -29,6 +30,7 @@ function App() {
           <Route path="/trips/:id" element={<TripDetailPage userId={user.id} />} />
           <Route path="/map" element={<MapPage userId={user.id} />} />
           <Route path="/stats" element={<StatsPage userId={user.id} />} />
+          <Route path="/planner" element={<PlannerPage userId={user.id} />} />
           <Route path="*" element={<Navigate to="/trips" replace />} />
         </Routes>
       </AppLayout>

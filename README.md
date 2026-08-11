@@ -1,16 +1,27 @@
 # Travel Logger 🌍
 
-A beautiful, full-featured travel journaling platform built with React, TypeScript, and Supabase.
+A beautiful, full-featured travel journaling and planning platform built with React, TypeScript, and Supabase.
 
 ## Features
 
-- 🗺️ **Interactive World Map** — See all your trips plotted on a Leaflet map with custom markers and popups
-- 📸 **Photo Uploads** — Upload and manage photos per trip, set a cover image, and view in a lightbox
+### Trip Logging
+- 🗺️ **Multi-city Trips** — Log trips across multiple cities, each with its own coordinates auto-detected via OpenStreetMap
+- 📸 **Photo Uploads** — Upload and manage photos per trip, set a cover image, view in a lightbox; deleting the cover auto-promotes the next photo
 - 📓 **Travel Journal** — Write detailed notes and memories for each trip
-- 📊 **Statistics Dashboard** — Bar charts, pie charts, and key stats about your travel history
-- ⭐ **Ratings & Tags** — Rate each trip and add searchable tags
-- 🔍 **Search & Filter** — Full-text search across trips, cities, countries and tags
-- 🔐 **Auth** — Email/password authentication via Supabase Auth with Row Level Security
+- ⭐ **Ratings & Tags** — Rate each trip 1–5 stars and add multiple searchable tags with a multi-select dropdown
+- 🔍 **Search & Filter** — Full-text search across trips, cities, countries and tags; filter by country, year, and month
+
+### Trip Planning
+- 📅 **Day-by-day Itinerary** — Build a full daily schedule auto-generated from your trip dates
+- 📍 **Places to See** — Add sights, restaurants, and activities; check them off as you visit
+- 💰 **Budget Tracker** — Track estimated vs actual spend per category with running totals
+- 🧳 **Packing Checklist** — Organised by category (clothing, documents, electronics…) with a progress bar
+- ✅ **Convert to Log** — One click marks a planned trip as completed and automatically adds it to your trip log
+
+### Explore & Analyse
+- 🗺️ **Interactive World Map** — Google Maps tiles in English with a pin for every city visited; switch between Map, Satellite, Hybrid, and Terrain views
+- 📊 **Statistics Dashboard** — Trips-per-year bar chart, continent breakdown pie chart, top tags, and summary stats (countries, cities, days abroad)
+- 🔐 **Auth** — Email/password authentication via Supabase Auth with Row Level Security on all tables
 
 ---
 
@@ -21,19 +32,56 @@ A beautiful, full-featured travel journaling platform built with React, TypeScri
 | Frontend | React 18 + TypeScript |
 | Build | Vite |
 | Routing | React Router v6 |
-| Map | Leaflet + React-Leaflet |
+| Map | Leaflet + React-Leaflet + Google Maps tiles |
 | Charts | Recharts |
 | Icons | Lucide React |
-| Database | Supabase (PostgreSQL) |
+| Database | Supabase (PostgreSQL + JSONB) |
 | Storage | Supabase Storage |
 | Auth | Supabase Auth |
+| Geocoding | OpenStreetMap Nominatim (free, no key) |
 | Date utils | date-fns |
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── AppLayout.tsx        # Sidebar nav wrapper
+│   ├── StarRating.tsx       # Reusable star rating widget
+│   ├── TagInput.tsx         # Multi-select tag dropdown with autocomplete
+│   ├── TripCard.tsx         # Trip grid card (shows multi-city label)
+│   └── TripForm.tsx         # Add/edit trip modal with multi-city stops
+├── hooks/
+│   ├── useAuth.ts           # Supabase auth state + session timeout
+│   ├── useTrips.ts          # Trips CRUD with error surfacing
+│   ├── usePhotos.ts         # Photo upload/delete + cover management
+│   └── usePlanner.ts        # Planned trips CRUD + section updaters
+├── lib/
+│   ├── supabase.ts          # Supabase client
+│   └── stats.ts             # Statistics computation helpers
+├── pages/
+│   ├── AuthPage.tsx         # Login / signup with password reveal
+│   ├── TripsPage.tsx        # Trip grid with search + country/year/month filters
+│   ├── TripDetailPage.tsx   # Individual trip: journal, photos, multi-city header
+│   ├── MapPage.tsx          # Google Maps world map with per-city pins
+│   ├── StatsPage.tsx        # Analytics dashboard
+│   ├── PlannerPage.tsx      # Planned trips list + new plan modal
+│   └── PlanDetailPage.tsx   # Plan detail: itinerary, places, budget, packing
+├── types/
+│   ├── index.ts             # Trip, TripPhoto, CityStop, TripFormData interfaces
+│   └── planner.ts           # PlannedTrip, PlaceItem, BudgetItem, PackingItem interfaces
+├── App.tsx                  # Router + auth gate
+├── main.tsx                 # Entry point
+└── index.css                # Global design system (sand/terracotta/teal palette)
+```
 
 ---
 
 ## Setup Instructions
 
-### 1. Clone & Install
+### 1. Install Dependencies
 
 ```bash
 cd travel-logger
@@ -43,27 +91,25 @@ npm install
 ### 2. Create a Supabase Project
 
 1. Go to [supabase.com](https://supabase.com) and create a free account
-2. Create a new project
-3. Wait for the project to finish provisioning (~1 minute)
+2. Create a new project and wait for it to provision (~1 minute)
 
 ### 3. Run the Database Schema
 
-1. In your Supabase project, go to **SQL Editor**
-2. Open `supabase-schema.sql` from this project
-3. Paste the entire contents and click **Run**
+1. In your Supabase project go to **SQL Editor → New query**
+2. Open `supabase-schema.sql`, copy the entire contents, paste and click **Run**
 
 This creates:
-- `trips` table with all trip fields + RLS policies
-- `trip_photos` table with RLS policies
-- Auto-update trigger for `updated_at`
+- `trips` table — multi-city stops stored as JSONB, full RLS policies
+- `trip_photos` table — with RLS policies
+- `planned_trips` table — itinerary, places, budget, packing all stored as JSONB
+- Auto-update `updated_at` trigger on all tables
 
 ### 4. Create the Storage Bucket
 
 1. Go to **Storage** in your Supabase dashboard
-2. Click **New bucket**
-3. Name it exactly: `trip-photos`
-4. Check **Public bucket** (so photos are publicly readable via URL)
-5. Click **Save**
+2. Click **New bucket**, name it exactly: `trip-photos`
+3. Enable **Public bucket** so photos are accessible via URL
+4. Click **Save**
 
 ### 5. Configure Environment Variables
 
@@ -71,7 +117,7 @@ This creates:
 cp .env.example .env
 ```
 
-Open `.env` and fill in:
+Open `.env` and fill in — use the **base URL only**, no trailing slash or `/rest/v1/`:
 
 ```
 VITE_SUPABASE_URL=https://your-project-id.supabase.co
@@ -80,7 +126,13 @@ VITE_SUPABASE_ANON_KEY=your-anon-public-key
 
 Find these in: **Supabase Dashboard → Project Settings → API**
 
-### 6. Run the App
+### 6. Disable Email Confirmation (for local dev)
+
+1. Go to **Authentication → Providers → Email**
+2. Toggle off **Confirm email**
+3. Click **Save**
+
+### 7. Run the App
 
 ```bash
 npm run dev
@@ -94,60 +146,38 @@ Open [http://localhost:5173](http://localhost:5173)
 
 ### Logging a Trip
 1. Click **Log New Trip** on the Trips page
-2. Enter title, city, and country
-3. Click **Auto-detect** to automatically geocode coordinates using OpenStreetMap
+2. Add one or more city stops — click **+ Add City** for multi-city trips
+3. Click **Auto-detect** on each stop to geocode coordinates automatically
 4. Set dates, rating, tags, and journal notes
 5. Click **Log Trip**
 
+### Planning a Trip
+1. Go to **Trip Planner** in the sidebar
+2. Click **Plan New Trip**, choose an emoji, fill in destination and dates
+3. Open the plan and use the four tabs:
+   - **Itinerary** — add activities per day (auto-generated from your dates)
+   - **Places** — add sights, restaurants, activities; check off as you visit
+   - **Budget** — add expense items per category, fill in actual costs as you spend
+   - **Packing** — build a checklist grouped by category, tick items off as you pack
+4. When the trip is done, click **Done** — it marks the plan complete and adds it to your trip log automatically
+
 ### Adding Photos
-1. Open any trip by clicking its card
-2. Go to the **Photos** tab
-3. Click **Upload Photos** or drag & drop
-4. The first uploaded photo becomes the cover image
-5. Click **Cover** on any photo to change the cover
-6. Click any photo to open the lightbox
+1. Open any logged trip
+2. Go to the **Photos** tab and click **Upload Photos**
+3. The first photo auto-sets as the cover; click **Cover** on any photo to change it
+4. Deleting the cover photo automatically promotes the next available photo
+5. Click any photo to open the full lightbox view
 
 ### World Map
-- All logged trips appear as terracotta pins on the interactive map
-- Click any pin to see a popup with trip details and a direct link
-- Use scroll to zoom, drag to pan
+- Every city in every trip gets its own tilted pushpin
+- Toggle between Map, Satellite, Hybrid, and Terrain views
+- Click any pin for a popup with trip details and a direct link
+- Stats legend in the bottom-left shows total trips, countries, and cities
 
-### Statistics
-- Automatically computed from all your trip data
-- Updates in real-time as you add/edit trips
-- Includes trips-per-year bar chart, continent pie chart, and top tags
-
----
-
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── AppLayout.tsx      # Sidebar nav wrapper
-│   ├── StarRating.tsx     # Reusable star rating widget
-│   ├── TagInput.tsx       # Chip-style tag input with autocomplete
-│   ├── TripCard.tsx       # Trip grid card
-│   └── TripForm.tsx       # Add/edit trip modal
-├── hooks/
-│   ├── useAuth.ts         # Supabase auth state
-│   ├── useTrips.ts        # Trips CRUD
-│   └── usePhotos.ts       # Photo upload/delete
-├── lib/
-│   ├── supabase.ts        # Supabase client + DB types
-│   └── stats.ts           # Statistics computation
-├── pages/
-│   ├── AuthPage.tsx       # Login / signup
-│   ├── TripsPage.tsx      # Trip grid with search/filter
-│   ├── TripDetailPage.tsx # Individual trip + photos + journal
-│   ├── MapPage.tsx        # Leaflet world map
-│   └── StatsPage.tsx      # Analytics dashboard
-├── types/
-│   └── index.ts           # TypeScript interfaces
-├── App.tsx                # Router + auth gate
-├── main.tsx               # Entry point
-└── index.css              # Global design system styles
-```
+### Filtering Trips
+- Search by title, city, country, or tag
+- Filter by country, year, and month independently
+- Active filters show as removable chips; **Clear all** resets everything
 
 ---
 
@@ -160,24 +190,25 @@ npm install -g vercel
 vercel
 ```
 
-Set the environment variables in the Vercel dashboard under **Settings → Environment Variables**.
+Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in **Vercel → Settings → Environment Variables**, then redeploy.
 
 ### Netlify
 
 ```bash
 npm run build
-# Deploy the `dist/` folder
+# Deploy the dist/ folder via Netlify dashboard or CLI
 ```
+
+Add the same two environment variables under **Site settings → Environment variables**.
 
 ---
 
-## Extending the App
+## Database Tables
 
-Some ideas for future features:
+| Table | Purpose |
+|-------|---------|
+| `trips` | Logged trips with multi-city stops (JSONB), photos references, ratings, tags |
+| `trip_photos` | Photos linked to trips, stored in Supabase Storage |
+| `planned_trips` | Future trip plans with itinerary, places, budget, packing (all JSONB) |
 
-- **Trip itinerary** — day-by-day schedule within a trip
-- **Wishlist** — plan future destinations
-- **Friends / sharing** — share trip logs publicly
-- **Expense tracking** — log costs per trip
-- **Export** — PDF or CSV export of trip data
-- **Offline support** — PWA with service worker caching
+All tables use **Row Level Security** — users can only read and write their own data.

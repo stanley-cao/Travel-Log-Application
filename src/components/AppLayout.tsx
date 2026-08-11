@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { User } from '@supabase/supabase-js'
-import { Map, BarChart2, Compass, LogOut, Globe } from 'lucide-react'
+import { Map, BarChart2, Compass, LogOut, Globe, BookOpen } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
 
 const NAV_ITEMS = [
   { label: 'My Trips', icon: Compass, path: '/trips' },
+  { label: 'Trip Planner', icon: BookOpen, path: '/planner' },
   { label: 'World Map', icon: Map, path: '/map' },
   { label: 'Statistics', icon: BarChart2, path: '/stats' },
 ]
