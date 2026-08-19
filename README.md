@@ -1,27 +1,27 @@
-# Travel Logger 🌍
+# Travel Logger 
 
 A beautiful, full-featured travel journaling and planning platform built with React, TypeScript, and Supabase.
 
 ## Features
 
 ### Trip Logging
-- 🗺️ **Multi-city Trips** — Log trips across multiple cities, each with its own coordinates auto-detected via OpenStreetMap
-- 📸 **Photo Uploads** — Upload and manage photos per trip, set a cover image, view in a lightbox; deleting the cover auto-promotes the next photo
-- 📓 **Travel Journal** — Write detailed notes and memories for each trip
-- ⭐ **Ratings & Tags** — Rate each trip 1–5 stars and add multiple searchable tags with a multi-select dropdown
-- 🔍 **Search & Filter** — Full-text search across trips, cities, countries and tags; filter by country, year, and month
+- **Multi-city Trips** — Log trips across multiple cities, each with its own coordinates auto-detected via OpenStreetMap
+- **Photo Uploads** — Upload and manage photos per trip, set a cover image, view in a lightbox; deleting the cover auto-promotes the next photo
+- **Travel Journal** — Write detailed notes and memories for each trip
+- **Ratings & Tags** — Rate each trip 1–5 stars and add multiple searchable tags with a multi-select dropdown
+- **Search & Filter** — Full-text search across trips, cities, countries and tags; filter by country, year, and month
 
 ### Trip Planning
-- 📅 **Day-by-day Itinerary** — Build a full daily schedule auto-generated from your trip dates
-- 📍 **Places to See** — Add sights, restaurants, and activities; check them off as you visit
-- 💰 **Budget Tracker** — Track estimated vs actual spend per category with running totals
-- 🧳 **Packing Checklist** — Organised by category (clothing, documents, electronics…) with a progress bar
-- ✅ **Convert to Log** — One click marks a planned trip as completed and automatically adds it to your trip log
+- **Day-by-day Itinerary** — Build a full daily schedule auto-generated from your trip dates
+- **Places to See** — Add sights, restaurants, and activities; check them off as you visit
+- **Budget Tracker** — Track estimated vs actual spend per category with running totals
+- **Packing Checklist** — Organised by category (clothing, documents, electronics…) with a progress bar
+- **Convert to Log** — One click marks a planned trip as completed and automatically adds it to your trip log
 
 ### Explore & Analyse
-- 🗺️ **Interactive World Map** — Google Maps tiles in English with a pin for every city visited; switch between Map, Satellite, Hybrid, and Terrain views
-- 📊 **Statistics Dashboard** — Trips-per-year bar chart, continent breakdown pie chart, top tags, and summary stats (countries, cities, days abroad)
-- 🔐 **Auth** — Email/password authentication via Supabase Auth with Row Level Security on all tables
+- **Interactive World Map** — Google Maps tiles in English with a pin for every city visited; switch between Map, Satellite, Hybrid, and Terrain views
+- **Statistics Dashboard** — Trips-per-year bar chart, continent breakdown pie chart, top tags, and summary stats (countries, cities, days abroad)
+- **Auth** — Email/password authentication via Supabase Auth with Row Level Security on all tables
 
 ---
 
