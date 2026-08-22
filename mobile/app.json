@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "Travel Logger",
+    "slug": "travel-logger",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1E1B17"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.yourname.travellogger",
+      "deploymentTarget": "15.1",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Used to detect your current location for trip logging.",
+        "NSPhotoLibraryUsageDescription": "Used to upload photos to your trips.",
+        "NSCameraUsageDescription": "Used to take photos for your trips.",
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-dev-client",
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Travel Logger to access your photos."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "scheme": "travellogger",
+    "assetBundlePatterns": [
+      "assets/fonts/*",
+      "assets/*.png"
+    ]
+  }
+}
